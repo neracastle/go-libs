@@ -82,7 +82,7 @@ func (c *client) Exist(ctx context.Context, key string) (bool, error) {
 	var rs bool
 	err := c.exec(ctx, func(ctx context.Context, conn redis.Conn) error {
 		var errCmd error
-		rs, errCmd = redis.Bool(conn.Do("EXIST", key))
+		rs, errCmd = redis.Bool(conn.Do("EXISTS", key))
 
 		return errCmd
 	})
