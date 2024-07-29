@@ -18,7 +18,7 @@ type client struct {
 	conn *redis.Pool
 }
 
-// NewClient Новый экземпляр клиента к редис
+// NewClient Новый экземпляр клиента к пулу редис
 func NewClient(pool *redis.Pool) def.Client {
 	return &client{conn: pool}
 }
