@@ -27,6 +27,7 @@ func GetLogger(ctx context.Context) *slog.Logger {
 	return ctx.Value(loggerKey{}).(*slog.Logger)
 }
 
+// SetupLogger создает объект логгера на основе типа окружения. Для локали и разработки текст, для прода json
 func SetupLogger(env string) *slog.Logger {
 	var lg *slog.Logger
 
