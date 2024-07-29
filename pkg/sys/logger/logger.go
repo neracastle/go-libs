@@ -2,8 +2,15 @@ package logger
 
 import (
 	"context"
+	"os"
 
 	"golang.org/x/exp/slog"
+)
+
+const (
+	envLocal = "local"
+	envDev   = "dev"
+	envProd  = "prod"
 )
 
 type loggerKey struct{}
@@ -18,4 +25,19 @@ func AssignLogger(ctx context.Context, logger *slog.Logger) context.Context {
 // GetLogger получает логгер из контекста
 func GetLogger(ctx context.Context) *slog.Logger {
 	return ctx.Value(loggerKey{}).(*slog.Logger)
+}
+
+func SetupLogger(env string) *slog.Logger {
+	var lg *slog.Logger
+
+	switch env {
+	case envLocal:
+		lg = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	case envDev:
+		lg = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	case envProd:
+		lg = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	}
+
+	return lg
 }
