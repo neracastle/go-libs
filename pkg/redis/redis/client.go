@@ -78,6 +78,22 @@ func (c *client) Expire(ctx context.Context, key string, expiration time.Duratio
 	return err
 }
 
+func (c *client) Exist(ctx context.Context, key string) (bool, error) {
+	var rs bool
+	err := c.exec(ctx, func(ctx context.Context, conn redis.Conn) error {
+		var errCmd error
+		rs, errCmd = redis.Bool(conn.Do("EXIST", key))
+
+		return errCmd
+	})
+
+	if err != nil {
+		return false, err
+	}
+
+	return rs, nil
+}
+
 func (c *client) HSet(ctx context.Context, key string, field string, value string) error {
 	err := c.exec(ctx, func(ctx context.Context, conn redis.Conn) error {
 		_, err := conn.Do("HSET", key, field, value)

@@ -12,6 +12,7 @@ type Client interface {
 	Get(ctx context.Context, key string) (string, error)
 	Del(ctx context.Context, key string) error
 	Expire(ctx context.Context, key string, expiration time.Duration) error
+	Exist(ctx context.Context, key string) (bool, error)
 	HSet(ctx context.Context, key string, field string, value string) error
 	HSetMap(ctx context.Context, key string, values interface{}) error
 	HGet(ctx context.Context, key string, field string) (string, error)
