@@ -2,15 +2,17 @@ package logger
 
 import (
 	"context"
+	"io"
 	"os"
 
 	"golang.org/x/exp/slog"
 )
 
 const (
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
+	envDisable = "disable"
+	envLocal   = "local"
+	envDev     = "dev"
+	envProd    = "prod"
 )
 
 type loggerKey struct{}
@@ -32,6 +34,8 @@ func SetupLogger(env string) *slog.Logger {
 	var lg *slog.Logger
 
 	switch env {
+	case envDisable:
+		lg = slog.New(slog.NewTextHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	case envLocal:
 		lg = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	case envDev:
