@@ -23,6 +23,7 @@ func NewClient(pool *redis.Pool) def.Client {
 	return &client{conn: pool}
 }
 
+// Set выполняет команду Set
 func (c *client) Set(ctx context.Context, key string, value interface{}) error {
 	err := c.exec(ctx, func(ctx context.Context, conn redis.Conn) error {
 		_, err := conn.Do("SET", redis.Args{key}.Add(value)...)
