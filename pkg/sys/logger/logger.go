@@ -8,11 +8,13 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+type Env string
+
 const (
-	envDisable = "disable"
-	envLocal   = "local"
-	envDev     = "dev"
-	envProd    = "prod"
+	Disable Env = "disable"
+	Local   Env = "local"
+	Dev     Env = "dev"
+	Prod    Env = "prod"
 )
 
 type loggerKey struct{}
@@ -30,17 +32,17 @@ func GetLogger(ctx context.Context) *slog.Logger {
 }
 
 // SetupLogger создает объект логгера на основе типа окружения. Для локали и разработки текст, для прода json
-func SetupLogger(env string) *slog.Logger {
+func SetupLogger(env Env) *slog.Logger {
 	var lg *slog.Logger
 
 	switch env {
-	case envDisable:
+	case Disable:
 		lg = slog.New(slog.NewTextHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo}))
-	case envLocal:
+	case Local:
 		lg = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case envDev:
+	case Dev:
 		lg = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case envProd:
+	case Prod:
 		lg = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	}
 

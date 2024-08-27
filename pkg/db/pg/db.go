@@ -28,7 +28,7 @@ type pg struct {
 type logHandler func(ctx context.Context, q db.Query, args ...interface{})
 
 // NewDB Новый экземпляр обертки клиента к pg
-func NewDB(dbc *pgxpool.Pool) db.DB {
+func NewDB(dbc *pgxpool.Pool) *pg {
 	return &pg{pool: dbc}
 }
 

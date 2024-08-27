@@ -18,8 +18,8 @@ type RateLimiter struct {
 	lastFill time.Time
 }
 
-// NewRateLimiter Создает новый экземпляр RateLimiter
-func NewRateLimiter(maxTokens uint, period time.Duration) *RateLimiter {
+// New Создает новый экземпляр RateLimiter
+func New(maxTokens uint, period time.Duration) *RateLimiter {
 	rl := &RateLimiter{
 		lastFill:  time.Now(),
 		period:    period,
