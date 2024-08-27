@@ -22,17 +22,15 @@ const (
 
 type pg struct {
 	pool    *pgxpool.Pool
-	logFunc logHandler
+	logFunc db.LogHandler
 }
 
-type logHandler func(ctx context.Context, q db.Query, args ...interface{})
-
 // NewDB Новый экземпляр обертки клиента к pg
-func NewDB(dbc *pgxpool.Pool) *pg {
+func NewDB(dbc *pgxpool.Pool) db.DB {
 	return &pg{pool: dbc}
 }
 
-func (p *pg) SetQueryLogger(logger logHandler) {
+func (p *pg) SetQueryLogger(logger db.LogHandler) {
 	p.logFunc = logger
 }
 

@@ -15,6 +15,7 @@ type Client interface {
 
 // Handler - функция, которая выполняется в транзакции
 type Handler func(ctx context.Context) error
+type LogHandler func(ctx context.Context, q Query, args ...interface{})
 
 // Transactor интерфейс для работы с транзакциями
 type Transactor interface {
@@ -33,6 +34,7 @@ type QueryExecer interface {
 	Exec(ctx context.Context, q Query, args ...interface{}) (pgconn.CommandTag, error)
 	Query(ctx context.Context, q Query, args ...interface{}) (pgx.Rows, error)
 	QueryRow(ctx context.Context, q Query, args ...interface{}) pgx.Row
+	SetQueryLogger(LogHandler)
 }
 
 // Pinger интерфейс для проверки соединения с БД
