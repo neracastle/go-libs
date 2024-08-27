@@ -22,7 +22,7 @@ const (
 
 type pg struct {
 	pool    *pgxpool.Pool
-	logFunc db.LogHandler
+	logFunc db.QueryLogger
 }
 
 // NewDB Новый экземпляр обертки клиента к pg
@@ -30,12 +30,13 @@ func NewDB(dbc *pgxpool.Pool) db.DB {
 	return &pg{pool: dbc}
 }
 
-func (p *pg) SetQueryLogger(logger db.LogHandler) {
+func (p *pg) SetQueryLogger(logger db.QueryLogger) {
 	p.logFunc = logger
 }
 
 func (p *pg) Exec(ctx context.Context, q db.Query, args ...interface{}) (pgconn.CommandTag, error) {
-	p.logQuery(ctx, q, args...)
+	deferFlush := p.logQuery(ctx, q, args...)
+	defer deferFlush.Flush()
 
 	tx, ok := ctx.Value(TxCtxKey).(pgx.Tx)
 	if ok {
@@ -46,7 +47,8 @@ func (p *pg) Exec(ctx context.Context, q db.Query, args ...interface{}) (pgconn.
 }
 
 func (p *pg) Query(ctx context.Context, q db.Query, args ...interface{}) (pgx.Rows, error) {
-	p.logQuery(ctx, q, args...)
+	deferFlush := p.logQuery(ctx, q, args...)
+	defer deferFlush.Flush()
 
 	tx, ok := ctx.Value(TxCtxKey).(pgx.Tx)
 	if ok {
@@ -57,7 +59,8 @@ func (p *pg) Query(ctx context.Context, q db.Query, args ...interface{}) (pgx.Ro
 }
 
 func (p *pg) QueryRow(ctx context.Context, q db.Query, args ...interface{}) pgx.Row {
-	p.logQuery(ctx, q, args...)
+	deferFlush := p.logQuery(ctx, q, args...)
+	defer deferFlush.Flush()
 
 	tx, ok := ctx.Value(TxCtxKey).(pgx.Tx)
 	if ok {
@@ -134,10 +137,13 @@ func (p *pg) transaction(ctx context.Context, opts pgx.TxOptions, fn db.Handler)
 	return err
 }
 
-func (p *pg) logQuery(ctx context.Context, q db.Query, args ...interface{}) {
+func (p *pg) logQuery(ctx context.Context, q db.Query, args ...interface{}) db.LogFlush {
 	if p.logFunc != nil {
-		p.logFunc(ctx, q, args...)
+		flush := p.logFunc(ctx, q, args...)
+		return flush
 	}
+
+	return db.DummyFlush{}
 }
 
 // MakeContextTx добавляет транзакцию в контекст, чтобы последующие вызовы транзакций брали ее

@@ -15,7 +15,19 @@ type Client interface {
 
 // Handler - функция, которая выполняется в транзакции
 type Handler func(ctx context.Context) error
-type LogHandler func(ctx context.Context, q Query, args ...interface{})
+
+// QueryLogger функция вызываемая при каждом выполнении запроса, например для логирования/трассировки
+type QueryLogger func(ctx context.Context, q Query, args ...interface{}) LogFlush
+
+// LogFlush объект, чей метод будет вызван по окончании запроса (на defer)
+type LogFlush interface {
+	Flush()
+}
+
+// DummyFlush объект-заглушка для сброса логов запросов (если не задан свой QueryLogger)
+type DummyFlush struct{}
+
+func (f DummyFlush) Flush() {}
 
 // Transactor интерфейс для работы с транзакциями
 type Transactor interface {
@@ -34,7 +46,7 @@ type QueryExecer interface {
 	Exec(ctx context.Context, q Query, args ...interface{}) (pgconn.CommandTag, error)
 	Query(ctx context.Context, q Query, args ...interface{}) (pgx.Rows, error)
 	QueryRow(ctx context.Context, q Query, args ...interface{}) pgx.Row
-	SetQueryLogger(LogHandler)
+	SetQueryLogger(logger QueryLogger)
 }
 
 // Pinger интерфейс для проверки соединения с БД
